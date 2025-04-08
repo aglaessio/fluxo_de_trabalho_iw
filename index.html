@@ -1,0 +1,1648 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fluxo de Trabalho - Ingressos Web</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-light: #4895ef;
+            --primary-dark: #3a0ca3;
+            --secondary: #f72585;
+            --success: #4cc9f0;
+            --warning: #f8961e;
+            --danger: #ef233c;
+            --info: #560bad;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --gray-light: #e9ecef;
+            --white: #ffffff;
+            --card-bg: #ffffff;
+            --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --border-radius: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        @supports (font-variation-settings: normal) {
+            * {
+                font-family: 'Inter var', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            }
+        }
+
+        body {
+            background-color: #f5f7ff;
+            color: var(--dark);
+            line-height: 1.6;
+            padding: 0;
+            margin: 0;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background-color: var(--white);
+            min-height: 100vh;
+            padding: 1rem;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.03);
+        }
+
+        .header {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--gray-light);
+            position: relative;
+            text-align: center;
+        }
+
+        .logo-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 1rem;
+            width: 100%;
+        }
+
+        .logo {
+            height: 50px;
+            margin-bottom: 1rem;
+        }
+
+        .header-text {
+            width: 100%;
+        }
+
+        h1, h2, h3, h4 {
+            color: var(--primary-dark);
+            margin-top: 0;
+            font-weight: 700;
+            line-height: 1.3;
+        }
+
+        h1 {
+            font-size: clamp(1.5rem, 4vw, 1.8rem);
+            margin-bottom: 0.5rem;
+        }
+
+        h2 {
+            font-size: clamp(1.3rem, 3vw, 1.5rem);
+            margin-bottom: 1.5rem;
+        }
+
+        h3 {
+            font-size: clamp(1.1rem, 2.5vw, 1.3rem);
+            margin-bottom: 1rem;
+        }
+
+        h4 {
+            font-size: clamp(1rem, 2vw, 1.1rem);
+            margin-bottom: 0.8rem;
+        }
+
+        .subtitle {
+            color: var(--gray);
+            margin-bottom: 1.5rem;
+            font-size: clamp(0.9rem, 2vw, 1rem);
+            font-weight: 400;
+        }
+
+        .flow-container {
+            margin-top: 1.5rem;
+            overflow-x: auto;
+            padding-bottom: 1rem;
+            position: relative;
+            -webkit-overflow-scrolling: touch;
+            width: 100%;
+        }
+
+        .flow-steps {
+            display: flex;
+            min-width: fit-content;
+            padding: 1rem 0;
+            gap: 1rem;
+            width: 100%;
+        }
+
+        .flow-step {
+            position: relative;
+            min-width: 250px;
+            width: 100%;
+            max-width: 300px;
+            padding: 1.2rem;
+            border: 1px solid var(--gray-light);
+            border-radius: var(--border-radius);
+            background-color: var(--card-bg);
+            flex-shrink: 0;
+            box-shadow: var(--card-shadow);
+            cursor: grab;
+            transition: var(--transition);
+        }
+
+        .flow-step.dragging {
+            opacity: 0.8;
+            transform: scale(0.98);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        .flow-step.active {
+            border-color: var(--primary);
+            background-color: rgba(67, 97, 238, 0.05);
+            box-shadow: 0 4px 20px rgba(67, 97, 238, 0.15);
+        }
+
+        .flow-step.multiple-outgoing::after {
+            content: '';
+            position: absolute;
+            right: -1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.3rem;
+            color: var(--primary);
+            font-weight: bold;
+            display: none;
+        }
+        
+        .custom-arrow {
+            position: absolute;
+            right: -1rem;
+            font-size: 1.3rem;
+            color: var(--primary);
+            font-weight: bold;
+        }
+        
+        .custom-arrow.top {
+            top: 30%;
+        }
+        
+        .custom-arrow.bottom {
+            top: 70%;
+        }
+
+        .step-title {
+            font-weight: 700;
+            margin-bottom: 0.8rem;
+            color: var(--primary-dark);
+            font-size: clamp(1rem, 2vw, 1.1rem);
+            display: flex;
+            align-items: center;
+        }
+
+        .step-title i {
+            margin-right: 0.8rem;
+            color: var(--primary);
+            font-size: clamp(1rem, 2vw, 1.1rem);
+            width: 1.5rem;
+            text-align: center;
+        }
+
+        .step-description {
+            margin-bottom: 1rem;
+            color: var(--dark);
+            font-size: clamp(0.85rem, 1.8vw, 0.9rem);
+            line-height: 1.5;
+        }
+
+        .step-responsible {
+            display: inline-block;
+            font-size: 0.8rem;
+            color: var(--white);
+            margin-bottom: 0.8rem;
+            padding: 0.3rem 0.6rem;
+            background-color: var(--primary);
+            border-radius: 50px;
+            font-weight: 500;
+        }
+
+        .step-transitions {
+            margin-top: 1rem;
+            padding-top: 0.8rem;
+            border-top: 1px dashed var(--gray-light);
+        }
+
+        .transition {
+            margin-bottom: 0.8rem;
+            padding: 0.8rem;
+            background-color: var(--light);
+            border-radius: 8px;
+            font-size: 0.8rem;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .transition:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .flow-legend {
+            margin-top: 2rem;
+            padding: 1.2rem;
+            background-color: var(--light);
+            border-radius: var(--border-radius);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+            margin-right: 0.8rem;
+            flex-shrink: 0;
+        }
+
+        .edit-controls {
+            display: flex;
+            gap: 0.8rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 0.6rem 1rem;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: var(--transition);
+            font-size: clamp(0.85rem, 2vw, 0.9rem);
+            white-space: nowrap;
+        }
+
+        .btn i {
+            font-size: clamp(0.85rem, 2vw, 0.9rem);
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            box-shadow: 0 2px 10px rgba(67, 97, 238, 0.3);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.4);
+        }
+
+        .btn-secondary {
+            background-color: var(--gray-light);
+            color: var(--dark);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--gray);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+            box-shadow: 0 2px 10px rgba(76, 201, 240, 0.3);
+        }
+
+        .btn-success:hover {
+            background-color: #3aa8d4;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(76, 201, 240, 0.4);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+            box-shadow: 0 2px 10px rgba(239, 35, 60, 0.3);
+        }
+
+        .btn-danger:hover {
+            background-color: #d61f36;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(239, 35, 60, 0.4);
+        }
+
+        .btn-warning {
+            background-color: var(--warning);
+            color: white;
+            box-shadow: 0 2px 10px rgba(248, 150, 30, 0.3);
+        }
+
+        .btn-warning:hover {
+            background-color: #e07e0c;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(248, 150, 30, 0.4);
+        }
+
+        .btn-sm {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+            border-radius: 6px;
+        }
+
+        .step-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            justify-content: flex-end;
+        }
+
+        .add-step-container, .edit-transition-container {
+            margin-top: 1.5rem;
+            padding: 1.2rem;
+            background-color: var(--light);
+            border-radius: var(--border-radius);
+            display: none;
+            box-shadow: var(--card-shadow);
+            width: 100%;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 0.9rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.6rem 1rem;
+            border: 1px solid var(--gray-light);
+            border-radius: var(--border-radius);
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 0.6rem 1rem;
+            border: 1px solid var(--gray-light);
+            border-radius: var(--border-radius);
+            font-size: 0.9rem;
+            background-color: white;
+            transition: var(--transition);
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 0.8rem;
+            margin-top: 1.2rem;
+            flex-wrap: wrap;
+        }
+
+        .form-actions .btn {
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .edit-mode .flow-step {
+            border-style: dashed;
+            border-color: var(--primary-light);
+        }
+
+        .transition-actions {
+            position: absolute;
+            right: 0.5rem;
+            top: 0.5rem;
+            display: flex;
+            gap: 0.3rem;
+        }
+
+        .transition-actions .btn {
+            padding: 0.2rem 0.4rem;
+            font-size: 0.7rem;
+            border-radius: 4px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .transition:hover .transition-actions .btn {
+            opacity: 1;
+        }
+
+        /* Export controls */
+        .export-controls {
+            margin-top: 1.5rem;
+            display: flex;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .code-container {
+            margin-top: 1.5rem;
+            padding: 1.2rem;
+            background-color: var(--light);
+            border-radius: var(--border-radius);
+            display: none;
+            position: relative;
+        }
+
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            margin: 0;
+            overflow-x: auto;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.3rem 0.6rem;
+            font-size: 0.8rem;
+        }
+
+        /* Histórico de alterações */
+        .history-container {
+            margin-top: 2rem;
+            padding: 1.2rem;
+            background-color: var(--light);
+            border-radius: var(--border-radius);
+            display: none;
+        }
+
+        .history-item {
+            padding: 0.8rem;
+            margin-bottom: 0.8rem;
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            border-left: 3px solid var(--primary);
+            font-size: 0.85rem;
+        }
+
+        .history-item .timestamp {
+            color: var(--gray);
+            font-size: 0.75rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .history-item .action {
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+
+        .history-item .details {
+            margin-top: 0.3rem;
+            color: var(--dark);
+        }
+
+        /* Responsividade */
+        @media (max-width: 992px) {
+            .flow-steps {
+                gap: 0.8rem;
+            }
+            
+            .flow-step {
+                min-width: 240px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0.8rem;
+            }
+            
+            .header {
+                margin-bottom: 1.5rem;
+                padding-bottom: 1rem;
+            }
+            
+            .logo {
+                height: 45px;
+                margin-bottom: 0.8rem;
+            }
+            
+            .flow-steps {
+                flex-direction: column;
+                align-items: center;
+                gap: 1.2rem;
+                padding: 0.8rem 0;
+            }
+            
+            .flow-step {
+                margin-right: 0;
+                margin-bottom: 0;
+                width: 100%;
+                max-width: 100%;
+                min-width: auto;
+            }
+            
+            .flow-step:not(.parallel-group):not(:last-child)::after,
+            .flow-step.multiple-outgoing::after {
+                content: '↓';
+                right: 50%;
+                top: auto;
+                bottom: -1rem;
+                transform: translateX(50%);
+                display: block;
+            }
+            
+            .custom-arrow {
+                display: none;
+            }
+            
+            .flow-legend {
+                grid-template-columns: 1fr;
+                gap: 0.8rem;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+                gap: 0.6rem;
+            }
+
+            .form-actions .btn {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .container {
+                padding: 0.6rem;
+            }
+            
+            .logo {
+                height: 40px;
+            }
+            
+            .btn {
+                padding: 0.5rem 0.8rem;
+            }
+            
+            .add-step-container, .edit-transition-container {
+                padding: 1rem;
+            }
+            
+            .export-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+
+        /* Animações */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .flow-step {
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        /* Scrollbar personalizada */
+        .flow-container::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .flow-container::-webkit-scrollbar-track {
+            background: var(--gray-light);
+            border-radius: 10px;
+        }
+
+        .flow-container::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 10px;
+        }
+
+        .flow-container::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo-container">
+                <img src="https://ingressosweb.com.br/img/logo-dark.640276db.png" alt="Logo" class="logo">
+                <div class="header-text">
+                    <h1>📋 Fluxo de Trabalho para Eventos</h1>
+                    <p class="subtitle">Visualize e gerencie o ciclo completo do processo de realização de eventos</p>
+                </div>
+            </div>
+            
+            <div class="edit-controls">
+                <button id="editToggle" class="btn btn-primary">
+                    <i class="fas fa-edit"></i> Editar Fluxo
+                </button>
+                <button id="addStepBtn" class="btn btn-secondary" style="display: none;">
+                    <i class="fas fa-plus"></i> Adicionar Setor
+                </button>
+                <button id="saveFlowBtn" class="btn btn-success" style="display: none;">
+                    <i class="fas fa-save"></i> Salvar Alterações
+                </button>
+                <button id="exportBtn" class="btn btn-warning" style="display: none;">
+                    <i class="fas fa-code"></i> Exportar Código
+                </button>
+                <button id="showHistoryBtn" class="btn btn-info" style="display: none;">
+                    <i class="fas fa-history"></i> Histórico
+                </button>
+            </div>
+        </div>
+        
+        <div class="flow-container">
+            <div class="flow-steps" id="workflow">
+                <!-- Fluxo será renderizado aqui dinamicamente -->
+            </div>
+        </div>
+
+        <!-- Formulário para adicionar/editar setor -->
+        <div id="addStepContainer" class="add-step-container">
+            <h3 id="stepFormTitle">Adicionar Novo Setor</h3>
+            <div class="form-group">
+                <label for="newStepName">Nome do Setor</label>
+                <input type="text" id="newStepName" class="form-control" placeholder="Ex: Financeiro">
+            </div>
+            <div class="form-group">
+                <label for="newStepIcon">Ícone (Font Awesome)</label>
+                <input type="text" id="newStepIcon" class="form-control" placeholder="Ex: dollar-sign">
+                <small class="text-muted">Digite o nome do ícone sem o prefixo "fa-"</small>
+            </div>
+            <div class="form-group">
+                <label for="newStepDescription">Descrição</label>
+                <textarea id="newStepDescription" class="form-control" rows="3" placeholder="Descreva as atividades deste setor"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="newStepResponsible">Responsável</label>
+                <input type="text" id="newStepResponsible" class="form-control" placeholder="Ex: Gestor Financeiro">
+            </div>
+            <div class="form-group">
+                <label for="newStepType">Tipo de Setor</label>
+                <select id="newStepType" class="form-select">
+                    <option value="normal">Setor Normal</option>
+                    <option value="parallel">Grupo Paralelo (contém múltiplos setores)</option>
+                </select>
+            </div>
+            <div class="form-actions">
+                <button id="confirmAddStep" class="btn btn-primary">Adicionar Setor</button>
+                <button id="cancelAddStep" class="btn btn-secondary">Cancelar</button>
+            </div>
+        </div>
+
+        <!-- Formulário para adicionar/editar transição -->
+        <div id="editTransitionContainer" class="edit-transition-container">
+            <h3 id="transitionFormTitle">Adicionar Nova Transição</h3>
+            <input type="hidden" id="currentStepId">
+            <input type="hidden" id="currentTransitionIndex">
+            <div class="form-group">
+                <label for="transitionTarget">Destino</label>
+                <select id="transitionTarget" class="form-select">
+                    <option value="">Selecione um setor de destino</option>
+                    <!-- Opções serão preenchidas dinamicamente -->
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="transitionDescription">Descrição</label>
+                <input type="text" id="transitionDescription" class="form-control" placeholder="Ex: Envia para aprovação">
+            </div>
+            <div class="form-group">
+                <label for="transitionCondition">Condição</label>
+                <input type="text" id="transitionCondition" class="form-control" placeholder="Ex: Documentação completa">
+            </div>
+            <div class="form-group">
+                <label for="transitionType">Tipo</label>
+                <select id="transitionType" class="form-select">
+                    <option value="primary">Fluxo principal</option>
+                    <option value="correction">Retorno para correções</option>
+                </select>
+            </div>
+            <div class="form-actions">
+                <button id="confirmTransition" class="btn btn-primary">Salvar Transição</button>
+                <button id="cancelTransition" class="btn btn-secondary">Cancelar</button>
+            </div>
+        </div>
+        
+        <div class="flow-legend">
+            <h4>Legenda do Processo:</h4>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: var(--primary);"></div>
+                <div>Setor responsável</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: var(--success);"></div>
+                <div>Fluxo principal</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: var(--warning);"></div>
+                <div>Retorno para correções</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: var(--gray-light); border: 1px solid var(--gray);"></div>
+                <div>Condições para transição</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(to right, var(--primary), var(--success));"></div>
+                <div>Fluxo paralelo</div>
+            </div>
+        </div>
+
+        <!-- Histórico de alterações -->
+        <div class="history-container" id="historyContainer">
+            <h4>Histórico de Alterações</h4>
+            <div id="historyList"></div>
+        </div>
+
+        <!-- Controles de exportação -->
+        <div class="export-controls" id="exportControls" style="display: none;">
+            <button id="copyCodeBtn" class="btn btn-primary">
+                <i class="fas fa-copy"></i> Copiar Código
+            </button>
+            <button id="downloadCodeBtn" class="btn btn-secondary">
+                <i class="fas fa-download"></i> Baixar como Arquivo
+            </button>
+        </div>
+
+        <!-- Container para exibir o código -->
+        <div class="code-container" id="codeContainer">
+            <button id="closeCodeBtn" class="btn btn-sm btn-danger copy-btn">
+                <i class="fas fa-times"></i>
+            </button>
+            <pre id="workflowCode"></pre>
+        </div>
+    </div>
+
+<script>
+    // Fluxo de trabalho com conexões específicas
+    let workflowSteps = [
+        {
+            id: 'commercial',
+            name: 'Comercial',
+            icon: 'fa-file-contract',
+            description: 'Cadastro inicial do evento com todas as informações necessárias e requisitos básicos',
+            responsible: 'Gestor Comercial',
+            transitions: [
+                {
+                    target: 'support',
+                    description: 'Envia documentação completa',
+                    condition: 'Planilha preenchida com todas informações',
+                    type: 'primary'
+                },
+                {
+                    target: 'operations',
+                    description: 'Envia requisitos operacionais',
+                    condition: 'Necessidades de equipamentos definidas',
+                    type: 'primary'
+                }
+            ]
+        },
+        {
+            id: 'support',
+            name: 'Suporte e Cadastramento',
+            icon: 'fa-check-double',
+            description: 'Validação dos dados, cadastro do evento no sistema e configurações iniciais',
+            responsible: 'Gestor de Suporte',
+            transitions: [
+                {
+                    target: 'commercial',
+                    description: 'Solicita informações adicionais',
+                    condition: 'Dados incompletos ou incorretos',
+                    type: 'correction'
+                },
+                {
+                    target: 'finance',
+                    description: 'Libera para análise financeira',
+                    condition: 'Dados validados e cadastro concluído',
+                    type: 'primary'
+                }
+            ]
+        },
+        {
+            id: 'operations',
+            name: 'Operações (Estoque/PDV)',
+            icon: 'fa-box-open',
+            description: 'Preparação e envio de equipamentos necessários (PDVs, totens, etc.)',
+            responsible: 'Gestor de Operações',
+            transitions: [
+                {
+                    target: 'commercial',
+                    description: 'Solicita esclarecimentos',
+                    condition: 'Necessidades não especificadas',
+                    type: 'correction'
+                },
+                {
+                    target: 'purchases',
+                    description: 'Encaminha para compras',
+                    condition: 'Equipamentos confirmados e preparados',
+                    type: 'primary'
+                }
+            ]
+        },
+        {
+            id: 'purchases',
+            name: 'Compras',
+            icon: 'fa-shopping-cart',
+            description: 'Aquisição de materiais, serviços e equipamentos necessários para o evento',
+            responsible: 'Gestor de Compras',
+            transitions: [
+                {
+                    target: 'operations',
+                    description: 'Solicita revisão de orçamento',
+                    condition: 'Valores acima do previsto',
+                    type: 'correction'
+                },
+                {
+                    target: 'technical',
+                    description: 'Libera para execução técnica',
+                    condition: 'Tudo provisionado conforme necessidade',
+                    type: 'primary'
+                }
+            ]
+        },
+        {
+            id: 'technical',
+            name: 'Operação Técnica',
+            icon: 'fa-tools',
+            description: 'Execução do evento no local, montagem, operação dos equipamentos e suporte técnico',
+            responsible: 'Coordenador Técnico',
+            transitions: [
+                {
+                    target: 'closure',
+                    description: 'Finaliza processo técnico',
+                    condition: 'Evento concluído com sucesso',
+                    type: 'primary'
+                },
+                {
+                    target: 'operations',
+                    description: 'Solicita ajustes operacionais',
+                    condition: 'Problemas com equipamentos',
+                    type: 'correction'
+                }
+            ]
+        },
+        {
+            id: 'closure',
+            name: 'Encerramento',
+            icon: 'fa-flag-checkered',
+            description: 'Conferência de equipamentos, relatórios finais, feedbacks e encerramento do processo',
+            responsible: 'Gestor de Operações',
+            transitions: []
+        }
+    ];
+
+    // Histórico de alterações
+    let changeHistory = [
+        {
+            timestamp: new Date().toISOString(),
+            action: "Sistema iniciado",
+            details: "Fluxo de trabalho carregado com configuração inicial"
+        }
+    ];
+
+    // Armazenamento local para persistência
+    const STORAGE_KEY = 'workflow_steps';
+    const HISTORY_KEY = 'workflow_history';
+
+    // Carrega dados salvos do localStorage
+    function loadSavedData() {
+        const savedSteps = localStorage.getItem(STORAGE_KEY);
+        const savedHistory = localStorage.getItem(HISTORY_KEY);
+        
+        if (savedSteps) {
+            workflowSteps = JSON.parse(savedSteps);
+            addToHistory("Dados carregados", "Fluxo de trabalho recuperado do armazenamento local");
+        }
+        
+        if (savedHistory) {
+            changeHistory = JSON.parse(savedHistory);
+        }
+    }
+
+    // Salva os dados no localStorage
+    function saveDataToStorage() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(workflowSteps));
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(changeHistory));
+    }
+
+    let editMode = false;
+    let draggedStep = null;
+    let currentStepId = null;
+    let currentTransitionIndex = null;
+
+    function renderWorkflow() {
+        const workflowElement = document.getElementById('workflow');
+        if (!workflowElement) return;
+        
+        let html = '';
+        
+        workflowSteps.forEach((step, index) => {
+            html += renderStep(step, index);
+        });
+        
+        workflowElement.innerHTML = html;
+
+        if (editMode) {
+            setupDragAndDrop();
+            document.querySelectorAll('.flow-step').forEach(step => {
+                step.setAttribute('draggable', 'true');
+            });
+        }
+    }
+
+    function renderStep(step, index) {
+        const isFirst = index === 0;
+        const isCommercial = step.id === 'commercial';
+        
+        let customArrows = '';
+        if (isCommercial) {
+            customArrows = `
+                <div class="custom-arrow top">→</div>
+                <div class="custom-arrow bottom">→</div>
+            `;
+        }
+        
+        return `
+            <div class="flow-step ${isFirst ? 'active' : ''} ${isCommercial ? 'multiple-outgoing' : ''}" 
+                 data-id="${step.id}" draggable="${editMode}">
+                ${customArrows}
+                <div class="step-title">
+                    <i class="fas ${step.icon}"></i>
+                    ${step.name}
+                </div>
+                <div class="step-responsible">${step.responsible}</div>
+                <div class="step-description">${step.description}</div>
+                
+                ${step.transitions.length > 0 ? `
+                    <div class="step-transitions">
+                        ${step.transitions.map((transition, idx) => `
+                            <div class="transition" style="border-left: 3px solid ${
+                                transition.type === 'primary' ? 'var(--success)' : 
+                                transition.type === 'correction' ? 'var(--warning)' : 'var(--gray)'
+                            };">
+                                ${editMode ? `
+                                    <div class="transition-actions">
+                                        <button class="btn btn-sm btn-warning btn-edit-transition" 
+                                                data-step-id="${step.id}" 
+                                                data-transition-index="${idx}">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-danger btn-delete-transition" 
+                                                data-step-id="${step.id}" 
+                                                data-transition-index="${idx}">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                ` : ''}
+                                <div><strong>${transition.description}</strong></div>
+                                ${transition.condition ? `
+                                    <div style="font-size: 0.75rem; color: var(--gray); margin-top: 5px;">
+                                        <i class="fas fa-info-circle"></i> ${transition.condition}
+                                    </div>
+                                ` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                ` : ''}
+                
+                ${editMode ? `
+                    <div class="step-actions">
+                        <button class="btn btn-secondary btn-edit-step" data-id="${step.id}">
+                            <i class="fas fa-edit"></i> Editar
+                        </button>
+                        <button class="btn btn-danger btn-delete-step" data-id="${step.id}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        <button class="btn btn-primary btn-add-transition" data-id="${step.id}">
+                            <i class="fas fa-plus"></i> Transição
+                        </button>
+                    </div>
+                ` : ''}
+            </div>
+        `;
+    }
+
+    function setupDragAndDrop() {
+        const steps = document.querySelectorAll('.flow-step');
+        
+        steps.forEach(step => {
+            step.addEventListener('dragstart', (e) => {
+                draggedStep = step;
+                setTimeout(() => {
+                    step.classList.add('dragging');
+                }, 0);
+            });
+            
+            step.addEventListener('dragend', () => {
+                step.classList.remove('dragging');
+                draggedStep = null;
+                updateWorkflowOrder();
+            });
+            
+            step.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                const afterElement = getDragAfterElement(steps, e.clientX);
+                const workflow = document.getElementById('workflow');
+                
+                if (afterElement == null) {
+                    workflow.appendChild(draggedStep);
+                } else {
+                    workflow.insertBefore(draggedStep, afterElement);
+                }
+            });
+        });
+    }
+
+    function updateWorkflowOrder() {
+        const workflowElement = document.getElementById('workflow');
+        const newOrder = Array.from(workflowElement.children).map(el => el.getAttribute('data-id'));
+        
+        // Reorganiza o array workflowSteps baseado na nova ordem
+        let newWorkflowSteps = [];
+        newOrder.forEach(id => {
+            const step = workflowSteps.find(step => step.id === id);
+            if (step) newWorkflowSteps.push(step);
+        });
+        
+        workflowSteps = newWorkflowSteps;
+        
+        // Salva automaticamente
+        saveDataToStorage();
+        
+        // Registra no histórico
+        addToHistory("Ordem alterada", "Os setores foram reorganizados no fluxo de trabalho");
+    }
+
+    function getDragAfterElement(steps, x) {
+        return [...steps].reduce((closest, child) => {
+            const box = child.getBoundingClientRect();
+            const offset = x - box.left - box.width / 2;
+            
+            if (offset < 0 && offset > closest.offset) {
+                return { offset: offset, element: child };
+            } else {
+                return closest;
+            }
+        }, { offset: Number.NEGATIVE_INFINITY }).element;
+    }
+
+    function toggleEditMode() {
+        editMode = !editMode;
+        document.body.classList.toggle('edit-mode', editMode);
+        document.getElementById('editToggle').innerHTML = 
+            `<i class="fas ${editMode ? 'fa-eye' : 'fa-edit'}"></i> ${editMode ? 'Visualizar' : 'Editar'} Fluxo`;
+        document.getElementById('addStepBtn').style.display = editMode ? 'flex' : 'none';
+        document.getElementById('saveFlowBtn').style.display = editMode ? 'flex' : 'none';
+        document.getElementById('exportBtn').style.display = editMode ? 'flex' : 'none';
+        document.getElementById('showHistoryBtn').style.display = editMode ? 'flex' : 'none';
+        renderWorkflow();
+    }
+
+    function showAddStepForm() {
+        document.getElementById('stepFormTitle').textContent = 'Adicionar Novo Setor';
+        document.getElementById('addStepContainer').style.display = 'block';
+        document.getElementById('newStepName').value = '';
+        document.getElementById('newStepIcon').value = '';
+        document.getElementById('newStepDescription').value = '';
+        document.getElementById('newStepResponsible').value = '';
+        document.getElementById('newStepType').value = 'normal';
+        document.getElementById('newStepName').focus();
+    }
+
+    function hideAddStepForm() {
+        document.getElementById('addStepContainer').style.display = 'none';
+    }
+
+    function showEditStepForm(stepId) {
+        const step = workflowSteps.find(s => s.id === stepId);
+        
+        if (!step) return;
+        
+        document.getElementById('stepFormTitle').textContent = 'Editar Setor';
+        document.getElementById('newStepName').value = step.name;
+        document.getElementById('newStepIcon').value = step.icon.replace('fa-', '');
+        document.getElementById('newStepDescription').value = step.description;
+        document.getElementById('newStepResponsible').value = step.responsible;
+        document.getElementById('newStepType').value = step.parallel ? 'parallel' : 'normal';
+        document.getElementById('addStepContainer').style.display = 'block';
+        document.getElementById('newStepName').focus();
+    }
+
+    function addNewStep() {
+        const name = document.getElementById('newStepName').value.trim();
+        let icon = document.getElementById('newStepIcon').value.trim();
+        const description = document.getElementById('newStepDescription').value.trim();
+        const responsible = document.getElementById('newStepResponsible').value.trim();
+        const type = document.getElementById('newStepType').value;
+        
+        if (!name || !icon || !description || !responsible) {
+            alert('Por favor, preencha todos os campos!');
+            return;
+        }
+        
+        // Garante que o ícone tenha o prefixo fa-
+        if (!icon.startsWith('fa-')) {
+            icon = `fa-${icon}`;
+        }
+        
+        if (type === 'parallel') {
+            const newParallelGroup = {
+                id: `parallel-group-${Date.now()}`,
+                parallel: true,
+                steps: [
+                    {
+                        id: `${name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}-1`,
+                        name: `${name} (1)`,
+                        icon: icon,
+                        description: description,
+                        responsible: responsible,
+                        transitions: []
+                    },
+                    {
+                        id: `${name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}-2`,
+                        name: `${name} (2)`,
+                        icon: icon,
+                        description: description,
+                        responsible: responsible,
+                        transitions: []
+                    }
+                ]
+            };
+            
+            workflowSteps.push(newParallelGroup);
+            
+            // Registra no histórico
+            addToHistory("Grupo paralelo adicionado", `Novo grupo paralelo "${name}" adicionado ao fluxo`);
+        } else {
+            const newStep = {
+                id: name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
+                name: name,
+                icon: icon,
+                description: description,
+                responsible: responsible,
+                transitions: []
+            };
+            
+            workflowSteps.push(newStep);
+            
+            // Registra no histórico
+            addToHistory("Setor adicionado", `Novo setor "${name}" adicionado ao fluxo`);
+        }
+        
+        // Salva automaticamente
+        saveDataToStorage();
+        
+        hideAddStepForm();
+        renderWorkflow();
+        
+        // Rola até o novo passo adicionado
+        setTimeout(() => {
+            const newStepElement = document.querySelector(`[data-id="${name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}"]`);
+            if (newStepElement) {
+                newStepElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }, 100);
+    }
+
+    function updateStep(stepId) {
+        const name = document.getElementById('newStepName').value.trim();
+        let icon = document.getElementById('newStepIcon').value.trim();
+        const description = document.getElementById('newStepDescription').value.trim();
+        const responsible = document.getElementById('newStepResponsible').value.trim();
+        
+        if (!name || !icon || !description || !responsible) {
+            alert('Por favor, preencha todos os campos!');
+            return;
+        }
+        
+        // Garante que o ícone tenha o prefixo fa-
+        if (!icon.startsWith('fa-')) {
+            icon = `fa-${icon}`;
+        }
+        
+        // Encontra o passo original para comparação
+        const originalStep = workflowSteps.find(s => s.id === stepId);
+        if (!originalStep) return;
+        
+        // Atualiza o passo no array
+        let stepFound = false;
+        workflowSteps = workflowSteps.map(step => {
+            if (step.id === stepId) {
+                stepFound = true;
+                
+                // Verifica quais campos foram alterados
+                const changes = [];
+                if (step.name !== name) changes.push(`Nome: "${step.name}" → "${name}"`);
+                if (step.icon !== icon) changes.push(`Ícone: "${step.icon}" → "${icon}"`);
+                if (step.description !== description) changes.push(`Descrição alterada`);
+                if (step.responsible !== responsible) changes.push(`Responsável: "${step.responsible}" → "${responsible}"`);
+                
+                // Registra no histórico se houver mudanças
+                if (changes.length > 0) {
+                    addToHistory("Setor atualizado", `Setor "${originalStep.name}" modificado: ${changes.join(', ')}`);
+                }
+                
+                return {
+                    ...step,
+                    name: name,
+                    icon: icon,
+                    description: description,
+                    responsible: responsible
+                };
+            }
+            return step;
+        });
+        
+        if (stepFound) {
+            // Salva automaticamente
+            saveDataToStorage();
+            
+            hideAddStepForm();
+            renderWorkflow();
+        } else {
+            alert('Setor não encontrado para edição!');
+        }
+    }
+
+    function deleteStep(stepId) {
+        const stepToDelete = workflowSteps.find(step => step.id === stepId);
+        if (!stepToDelete) return;
+        
+        if (confirm('Tem certeza que deseja remover este passo? Esta ação não pode ser desfeita.')) {
+            // Remove o passo do array
+            workflowSteps = workflowSteps.filter(step => step.id !== stepId);
+            
+            // Salva automaticamente
+            saveDataToStorage();
+            
+            // Registra no histórico
+            addToHistory("Setor removido", `Setor "${stepToDelete.name}" foi removido do fluxo`);
+            
+            renderWorkflow();
+        }
+    }
+
+    function showAddTransitionForm(stepId) {
+        currentStepId = stepId;
+        currentTransitionIndex = null;
+        
+        document.getElementById('transitionFormTitle').textContent = 'Adicionar Nova Transição';
+        document.getElementById('transitionTarget').value = '';
+        document.getElementById('transitionDescription').value = '';
+        document.getElementById('transitionCondition').value = '';
+        document.getElementById('transitionType').value = 'primary';
+        
+        // Preenche as opções de destino
+        const targetSelect = document.getElementById('transitionTarget');
+        targetSelect.innerHTML = '<option value="">Selecione um setor de destino</option>';
+        
+        workflowSteps.forEach(step => {
+            if (step.id !== stepId) {
+                targetSelect.innerHTML += `<option value="${step.id}">${step.name}</option>`;
+            }
+        });
+        
+        document.getElementById('editTransitionContainer').style.display = 'block';
+    }
+
+    function showEditTransitionForm(stepId, transitionIndex) {
+        currentStepId = stepId;
+        currentTransitionIndex = transitionIndex;
+        
+        const step = workflowSteps.find(s => s.id === stepId);
+        
+        if (!step || !step.transitions[transitionIndex]) return;
+        
+        const transition = step.transitions[transitionIndex];
+        
+        document.getElementById('transitionFormTitle').textContent = 'Editar Transição';
+        document.getElementById('transitionDescription').value = transition.description;
+        document.getElementById('transitionCondition').value = transition.condition || '';
+        document.getElementById('transitionType').value = transition.type || 'primary';
+        
+        // Preenche as opções de destino
+        const targetSelect = document.getElementById('transitionTarget');
+        targetSelect.innerHTML = '<option value="">Selecione um setor de destino</option>';
+        
+        workflowSteps.forEach(s => {
+            if (s.id !== stepId) {
+                targetSelect.innerHTML += `<option value="${s.id}" ${s.id === transition.target ? 'selected' : ''}>${s.name}</option>`;
+            }
+        });
+        
+        document.getElementById('editTransitionContainer').style.display = 'block';
+    }
+
+    function hideTransitionForm() {
+        document.getElementById('editTransitionContainer').style.display = 'none';
+    }
+
+    function saveTransition() {
+        const target = document.getElementById('transitionTarget').value;
+        const description = document.getElementById('transitionDescription').value.trim();
+        const condition = document.getElementById('transitionCondition').value.trim();
+        const type = document.getElementById('transitionType').value;
+        
+        if (!target || !description) {
+            alert('Por favor, preencha todos os campos obrigatórios!');
+            return;
+        }
+        
+        // Encontra o passo atual
+        const step = workflowSteps.find(s => s.id === currentStepId);
+        const targetStep = workflowSteps.find(s => s.id === target);
+        
+        if (!step || !targetStep) {
+            alert('Setor não encontrado!');
+            return;
+        }
+        
+        const newTransition = {
+            target: target,
+            description: description,
+            condition: condition,
+            type: type
+        };
+        
+        if (currentTransitionIndex !== null) {
+            // Edição de transição existente
+            const oldTransition = step.transitions[currentTransitionIndex];
+            step.transitions[currentTransitionIndex] = newTransition;
+            
+            // Registra no histórico
+            const changes = [];
+            if (oldTransition.target !== newTransition.target) {
+                const oldTarget = workflowSteps.find(s => s.id === oldTransition.target);
+                changes.push(`Destino: "${oldTarget?.name || oldTransition.target}" → "${targetStep.name}"`);
+            }
+            if (oldTransition.description !== newTransition.description) {
+                changes.push(`Descrição: "${oldTransition.description}" → "${newTransition.description}"`);
+            }
+            if (oldTransition.condition !== newTransition.condition) {
+                changes.push(`Condição: "${oldTransition.condition || 'nenhuma'}" → "${newTransition.condition || 'nenhuma'}"`);
+            }
+            if (oldTransition.type !== newTransition.type) {
+                changes.push(`Tipo: "${oldTransition.type}" → "${newTransition.type}"`);
+            }
+            
+            if (changes.length > 0) {
+                addToHistory("Transição atualizada", `Transição em "${step.name}" modificada: ${changes.join(', ')}`);
+            }
+        } else {
+            // Adição de nova transição
+            step.transitions.push(newTransition);
+            
+            // Registra no histórico
+            addToHistory("Transição adicionada", `Nova transição de "${step.name}" para "${targetStep.name}" adicionada`);
+        }
+        
+        // Salva automaticamente
+        saveDataToStorage();
+        
+        hideTransitionForm();
+        renderWorkflow();
+    }
+
+    function deleteTransition(stepId, transitionIndex) {
+        const step = workflowSteps.find(s => s.id === stepId);
+        if (!step || !step.transitions[transitionIndex]) return;
+        
+        const transition = step.transitions[transitionIndex];
+        const targetStep = workflowSteps.find(s => s.id === transition.target);
+        
+        if (confirm('Tem certeza que deseja remover esta transição?')) {
+            // Remove a transição
+            step.transitions.splice(transitionIndex, 1);
+            
+            // Salva automaticamente
+            saveDataToStorage();
+            
+            // Registra no histórico
+            addToHistory("Transição removida", `Transição de "${step.name}" para "${targetStep?.name || transition.target}" foi removida`);
+            
+            renderWorkflow();
+        }
+    }
+
+    function saveWorkflow() {
+        // Salva os dados
+        saveDataToStorage();
+        
+        // Registra no histórico
+        addToHistory("Fluxo salvo", "Todas as alterações foram salvas");
+        
+        alert('Fluxo de trabalho salvo com sucesso!');
+        toggleEditMode();
+        
+        // Simula um efeito de confirmação
+        const saveBtn = document.getElementById('saveFlowBtn');
+        saveBtn.innerHTML = '<i class="fas fa-check"></i> Salvo!';
+        saveBtn.style.backgroundColor = 'var(--success)';
+        
+        setTimeout(() => {
+            saveBtn.innerHTML = '<i class="fas fa-save"></i> Salvar Alterações';
+            saveBtn.style.backgroundColor = 'var(--primary)';
+        }, 2000);
+    }
+
+    function exportWorkflow() {
+        // Formata o código para exibição
+        const formattedCode = JSON.stringify(workflowSteps, null, 2);
+        document.getElementById('workflowCode').textContent = formattedCode;
+        document.getElementById('codeContainer').style.display = 'block';
+        document.getElementById('exportControls').style.display = 'flex';
+        
+        // Rola até o código
+        document.getElementById('codeContainer').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function copyCodeToClipboard() {
+        const code = document.getElementById('workflowCode').textContent;
+        navigator.clipboard.writeText(code).then(() => {
+            alert('Código copiado para a área de transferência!');
+            
+            // Registra no histórico
+            addToHistory("Código copiado", "O fluxo de trabalho foi copiado para a área de transferência");
+            
+            // Salva automaticamente
+            saveDataToStorage();
+        }).catch(err => {
+            console.error('Erro ao copiar código:', err);
+            alert('Erro ao copiar código. Veja o console para detalhes.');
+        });
+    }
+
+    function downloadCodeAsFile() {
+        const code = document.getElementById('workflowCode').textContent;
+        const blob = new Blob([code], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'fluxo-trabalho.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        // Registra no histórico
+        addToHistory("Código exportado", "O fluxo de trabalho foi baixado como arquivo JSON");
+        
+        // Salva automaticamente
+        saveDataToStorage();
+    }
+
+    function addToHistory(action, details) {
+        const timestamp = new Date().toISOString();
+        changeHistory.unshift({
+            timestamp,
+            action,
+            details
+        });
+        
+        // Limita o histórico a 100 itens
+        if (changeHistory.length > 100) {
+            changeHistory.pop();
+        }
+        
+        renderHistory();
+    }
+
+    function renderHistory() {
+        const historyList = document.getElementById('historyList');
+        if (!historyList) return;
+        
+        let html = '';
+        
+        changeHistory.forEach(item => {
+            const date = new Date(item.timestamp);
+            const formattedTime = date.toLocaleTimeString();
+            const formattedDate = date.toLocaleDateString();
+            
+            html += `
+                <div class="history-item">
+                    <div class="timestamp">${formattedDate} ${formattedTime}</div>
+                    <div class="action">${item.action}</div>
+                    <div class="details">${item.details}</div>
+                </div>
+            `;
+        });
+        
+        historyList.innerHTML = html;
+    }
+
+    function toggleHistory() {
+        const historyContainer = document.getElementById('historyContainer');
+        if (historyContainer.style.display === 'block') {
+            historyContainer.style.display = 'none';
+        } else {
+            historyContainer.style.display = 'block';
+            renderHistory();
+        }
+    }
+
+    // Inicialização
+    document.addEventListener('DOMContentLoaded', () => {
+        // Carrega dados salvos
+        loadSavedData();
+        
+        renderWorkflow();
+        renderHistory();
+        
+        // Event listeners principais
+        document.getElementById('editToggle').addEventListener('click', toggleEditMode);
+        document.getElementById('addStepBtn').addEventListener('click', showAddStepForm);
+        document.getElementById('saveFlowBtn').addEventListener('click', saveWorkflow);
+        document.getElementById('exportBtn').addEventListener('click', exportWorkflow);
+        document.getElementById('showHistoryBtn').addEventListener('click', toggleHistory);
+        
+        // Formulário de setor
+        document.getElementById('confirmAddStep').addEventListener('click', () => {
+            if (document.getElementById('stepFormTitle').textContent === 'Adicionar Novo Setor') {
+                addNewStep();
+            } else {
+                updateStep(currentStepId);
+            }
+        });
+        document.getElementById('cancelAddStep').addEventListener('click', hideAddStepForm);
+        
+        // Formulário de transição
+        document.getElementById('confirmTransition').addEventListener('click', saveTransition);
+        document.getElementById('cancelTransition').addEventListener('click', hideTransitionForm);
+        
+        // Controles de exportação
+        document.getElementById('copyCodeBtn').addEventListener('click', copyCodeToClipboard);
+        document.getElementById('downloadCodeBtn').addEventListener('click', downloadCodeAsFile);
+        document.getElementById('closeCodeBtn').addEventListener('click', () => {
+            document.getElementById('codeContainer').style.display = 'none';
+        });
+        
+        // Delegated event listeners para ações nos passos
+        document.getElementById('workflow').addEventListener('click', (e) => {
+            // Editar passo
+            if (e.target.closest('.btn-edit-step')) {
+                const stepId = e.target.closest('.btn-edit-step').getAttribute('data-id');
+                currentStepId = stepId;
+                showEditStepForm(stepId);
+            }
+            
+            // Excluir passo
+            if (e.target.closest('.btn-delete-step')) {
+                const stepId = e.target.closest('.btn-delete-step').getAttribute('data-id');
+                deleteStep(stepId);
+            }
+            
+            // Adicionar transição
+            if (e.target.closest('.btn-add-transition')) {
+                const stepId = e.target.closest('.btn-add-transition').getAttribute('data-id');
+                showAddTransitionForm(stepId);
+            }
+            
+            // Editar transição
+            if (e.target.closest('.btn-edit-transition')) {
+                const btn = e.target.closest('.btn-edit-transition');
+                const stepId = btn.getAttribute('data-step-id');
+                const transitionIndex = parseInt(btn.getAttribute('data-transition-index'));
+                showEditTransitionForm(stepId, transitionIndex);
+            }
+            
+            // Excluir transição
+            if (e.target.closest('.btn-delete-transition')) {
+                const btn = e.target.closest('.btn-delete-transition');
+                const stepId = btn.getAttribute('data-step-id');
+                const transitionIndex = parseInt(btn.getAttribute('data-transition-index'));
+                deleteTransition(stepId, transitionIndex);
+            }
+        });
+    });
+</script>
+</body>
+</html>
