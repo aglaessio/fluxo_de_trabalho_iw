@@ -1,0 +1,24 @@
+[
+    {
+        "id": "gestao-operacional",
+        "name": "Gestão Operacional",
+        "icon": "clipboard-check",
+        "description": "Análise primária do evento com todas as informações necessárias e requisitos básicos para dar prosseguimento ao planejamento do mesmo.",
+        "responsible": "Aglaessio Reis",
+        "transitions": [
+            {
+                "target": "comercial",
+                "description": "Retorna para o Setor Comercial",
+                "condition": "Inconformidades no preenchimento da planilha do Evento ou necessidade de esclarecimentos",
+                "type": "correction"
+            },
+            {
+                "target": "compras",
+                "description": "Avança para os Setores de Compras, Estoque e Operação Técnica",
+                "condition": "Planilha analisada e atendendo todas as necessidades para dar continuidade aos respectivos processos",
+                "type": "primary"
+            }
+        ]
+    }
+    // ... (adicione os outros passos conforme necessário)
+]
