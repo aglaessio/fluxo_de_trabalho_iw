@@ -442,10 +442,10 @@
             <button id="saveFlowBtn" class="btn btn-success" style="display: none;">
                 <i class="fas fa-save"></i> Salvar Local
             </button>
-            <button id="exportJsonBtn" class="btn btn-secondary">
+            <button id="exportJsonBtn" class="btn btn-secondary" style="display: none;">
                 <i class="fas fa-file-export"></i> Exportar JSON
             </button>
-            <button id="importJsonBtn" class="btn btn-secondary">
+            <button id="importJsonBtn" class="btn btn-secondary" style="display: none;">
                 <i class="fas fa-file-import"></i> Importar JSON
             </button>
             <button id="resetFlowBtn" class="btn btn-danger" style="display: none;">
@@ -679,9 +679,9 @@
         const toggleEditBtn = document.getElementById('toggleEditBtn');
         const addStepBtn = document.getElementById('addStepBtn');
         const saveFlowBtn = document.getElementById('saveFlowBtn');
-        const resetFlowBtn = document.getElementById('resetFlowBtn');
         const exportJsonBtn = document.getElementById('exportJsonBtn');
         const importJsonBtn = document.getElementById('importJsonBtn');
+        const resetFlowBtn = document.getElementById('resetFlowBtn');
         const flowchart = document.getElementById('flowchart');
         const stepModal = document.getElementById('stepModal');
         const modalTitle = document.getElementById('modalTitle');
@@ -737,11 +737,6 @@
         }
 
         function exportToJson() {
-            if (!editMode) {
-                showToast('Entre no modo edição primeiro', 'error');
-                return;
-            }
-
             const dataStr = JSON.stringify(workflowSteps, null, 2);
             const blob = new Blob([dataStr], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
@@ -758,11 +753,6 @@
         }
 
         function importFromJson() {
-            if (!editMode) {
-                showToast('Entre no modo edição primeiro', 'error');
-                return;
-            }
-
             const input = document.createElement('input');
             input.type = 'file';
             input.accept = '.json';
@@ -947,6 +937,8 @@
             toggleEditBtn.innerHTML = `<i class="fas ${editMode ? 'fa-eye' : 'fa-edit'}"></i> ${editMode ? 'Visualizar' : 'Editar'} Fluxograma`;
             addStepBtn.style.display = editMode ? 'flex' : 'none';
             saveFlowBtn.style.display = editMode ? 'flex' : 'none';
+            exportJsonBtn.style.display = editMode ? 'flex' : 'none';
+            importJsonBtn.style.display = editMode ? 'flex' : 'none';
             resetFlowBtn.style.display = editMode ? 'flex' : 'none';
         }
 
