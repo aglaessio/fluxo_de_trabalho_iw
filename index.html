@@ -440,7 +440,7 @@
                 <i class="fas fa-plus"></i> Adicionar Passo
             </button>
             <button id="saveFlowBtn" class="btn btn-success" style="display: none;">
-                <i class="fas fa-save"></i> Salvar Local
+                <i class="fas fa-save"></i> Salvar no Projeto
             </button>
             <button id="exportJsonBtn" class="btn btn-secondary" style="display: none;">
                 <i class="fas fa-file-export"></i> Exportar JSON
@@ -664,7 +664,7 @@
         // Configurações
         const PASSWORD = "Maria.191290";
         const STORAGE_KEY = "event_workflow_data";
-        const JSON_FILE_URL = "https://raw.githubusercontent.com/seu-usuario/seu-repositorio/main/fluxograma.json";
+        const JSON_FILE_URL = "fluxograma.json";
 
         // Estado da aplicação
         let editMode = false;
@@ -708,30 +708,101 @@
         const toastMessage = document.getElementById('toastMessage');
 
         // Funções de carregamento/salvamento
-        function loadWorkflow() {
-            const savedData = localStorage.getItem(STORAGE_KEY);
-            return savedData ? JSON.parse(savedData) : [...DEFAULT_WORKFLOW];
+        async function loadWorkflow() {
+            try {
+                // Tenta carregar do localStorage primeiro
+                const savedData = localStorage.getItem(STORAGE_KEY);
+                if (savedData) {
+                    const parsedData = JSON.parse(savedData);
+                    if (Array.isArray(parsedData) && parsedData.length > 0) {
+                        return parsedData;
+                    }
+                }
+
+                // Se não tiver no localStorage ou for inválido, tenta carregar do arquivo
+                const response = await fetch(`${JSON_FILE_URL}?t=${new Date().getTime()}`);
+                
+                if (!response.ok) {
+                    throw new Error(`Erro HTTP! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                // Valida a estrutura dos dados
+                if (!Array.isArray(data) || data.length === 0) {
+                    throw new Error('Estrutura de dados inválida no arquivo');
+                }
+                
+                // Salva no localStorage para uso futuro
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+                return data;
+                
+            } catch (error) {
+                console.warn('Erro ao carregar workflow:', error.message);
+                // Retorna os dados padrão em caso de erro
+                return [...DEFAULT_WORKFLOW];
+            }
+        }
+
+        async function saveToProject() {
+            try {
+                // Criar um novo Blob com o conteúdo atualizado
+                const workflowData = JSON.stringify(workflowSteps, null, 2);
+                const blob = new Blob([workflowData], { type: 'application/json' });
+                
+                // Criar um link para download do arquivo atualizado
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'fluxograma.json';
+                
+                // Disparar o download
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                showToast('Arquivo pronto para ser commitado no projeto!');
+                
+            } catch (error) {
+                console.error('Erro ao salvar no projeto:', error);
+                showToast('Erro ao salvar no projeto: ' + error.message, 'error');
+            }
         }
 
         function saveWorkflow() {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(workflowSteps));
-            showToast('Alterações salvas localmente');
+            saveToProject();
+            showToast('Alterações salvas localmente e no projeto');
         }
 
         async function loadFromRepo() {
             try {
-                const response = await fetch(JSON_FILE_URL);
-                if (!response.ok) throw new Error('Erro ao carregar arquivo');
+                const response = await fetch(`${JSON_FILE_URL}?t=${new Date().getTime()}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
                 
                 const data = await response.json();
+                
+                // Validação dos dados
+                if (!Array.isArray(data)) {
+                    throw new Error('Dados inválidos - não é um array');
+                }
+                
+                if (data.length === 0) {
+                    throw new Error('Arquivo está vazio');
+                }
+                
                 workflowSteps = data;
-                saveWorkflow();
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
                 renderFlowchart();
-                showToast('Dados carregados do repositório!');
+                showToast('Dados carregados do arquivo com sucesso!');
                 return true;
+                
             } catch (error) {
-                console.error('Erro ao carregar:', error);
-                showToast('Erro ao carregar dados: ' + error.message, 'error');
+                console.error('Falha ao carregar do arquivo:', error);
+                showToast(`Erro: ${error.message}`, 'error');
                 return false;
             }
         }
@@ -743,7 +814,7 @@
             
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'fluxograma.json';
+            a.download = 'fluxograma-exportado.json';
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -765,6 +836,12 @@
                 reader.onload = event => {
                     try {
                         const data = JSON.parse(event.target.result);
+                        
+                        // Validação básica dos dados
+                        if (!Array.isArray(data)) {
+                            throw new Error('Arquivo inválido - deve conter um array');
+                        }
+                        
                         workflowSteps = data;
                         saveWorkflow();
                         renderFlowchart();
@@ -773,6 +850,9 @@
                         console.error('Erro ao importar:', error);
                         showToast('Erro ao importar JSON: ' + error.message, 'error');
                     }
+                };
+                reader.onerror = () => {
+                    showToast('Erro ao ler o arquivo', 'error');
                 };
                 reader.readAsText(file);
             };
@@ -1007,7 +1087,7 @@
             
             saveFlowBtn.innerHTML = '<i class="fas fa-check"></i> Salvo!';
             setTimeout(() => {
-                saveFlowBtn.innerHTML = '<i class="fas fa-save"></i> Salvar Local';
+                saveFlowBtn.innerHTML = '<i class="fas fa-save"></i> Salvar no Projeto';
             }, 2000);
         });
 
@@ -1101,9 +1181,22 @@
         });
 
         // Inicialização
-        window.addEventListener('DOMContentLoaded', () => {
-            workflowSteps = loadWorkflow();
-            renderFlowchart();
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                workflowSteps = await loadWorkflow();
+                renderFlowchart();
+                
+                // Verifica se deve carregar do repositório
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.has('load')) {
+                    await loadFromRepo();
+                }
+            } catch (error) {
+                console.error('Erro na inicialização:', error);
+                workflowSteps = [...DEFAULT_WORKFLOW];
+                renderFlowchart();
+                showToast('Erro ao carregar dados, usando padrão', 'error');
+            }
         });
 
         // Event listeners para fechar modais
