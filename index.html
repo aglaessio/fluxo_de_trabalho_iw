@@ -38,59 +38,84 @@
             color: var(--dark);
             line-height: 1.6;
             -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
         .container {
+            width: 100%;
             max-width: 1400px;
             margin: 0 auto;
             padding: 1rem;
+            flex: 1;
         }
 
         .header {
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin-bottom: 2rem;
-            padding-bottom: 1.5rem;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
             border-bottom: 1px solid var(--gray-light);
+            text-align: center;
         }
 
         .logo {
-            height: 50px;
-            margin-bottom: 1rem;
+            height: 40px;
+            margin-bottom: 0.5rem;
+            max-width: 100%;
         }
 
         h1, h2, h3 {
             color: var(--primary);
             font-weight: 700;
+            word-break: break-word;
         }
 
         h1 {
-            font-size: 1.8rem;
-            margin-bottom: 0.5rem;
+            font-size: clamp(1.4rem, 4vw, 1.8rem);
+            margin-bottom: 0.3rem;
         }
 
         .subtitle {
             color: var(--gray);
-            font-size: 1rem;
+            font-size: clamp(0.9rem, 3vw, 1rem);
         }
 
         .flowchart {
             position: relative;
-            min-height: 100vh;
-            padding: 1rem;
+            width: 100%;
+            padding: 0.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .step {
             width: 100%;
-            max-width: 320px;
-            padding: 1.5rem;
+            max-width: 100%;
+            padding: 1rem;
             border-radius: var(--border-radius);
             background-color: var(--card-bg);
             box-shadow: var(--card-shadow);
-            margin: 0 auto 2rem;
+            margin: 0 auto 1.5rem;
             position: relative;
             transition: var(--transition);
+        }
+
+        @media (min-width: 768px) {
+            .step {
+                max-width: 90%;
+                padding: 1.25rem;
+            }
+        }
+
+        @media (min-width: 992px) {
+            .step {
+                max-width: 80%;
+                padding: 1.5rem;
+            }
         }
 
         .step.editable {
@@ -100,49 +125,56 @@
         .step-header {
             display: flex;
             align-items: center;
-            margin-bottom: 1rem;
+            margin-bottom: 0.8rem;
+            flex-wrap: wrap;
         }
 
         .step-icon {
-            width: 40px;
-            height: 40px;
+            width: 36px;
+            height: 36px;
+            min-width: 36px;
             border-radius: 50%;
             background-color: var(--accent);
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-right: 1rem;
+            margin-right: 0.8rem;
             color: white;
-            font-size: 1.2rem;
+            font-size: 1rem;
         }
 
         .step-title {
             font-weight: 700;
             color: var(--primary);
-            font-size: 1.2rem;
+            font-size: clamp(1rem, 4vw, 1.2rem);
+            word-break: break-word;
+            flex: 1;
+            min-width: 200px;
         }
 
         .step-responsible {
-            font-size: 0.9rem;
+            font-size: clamp(0.8rem, 3vw, 0.9rem);
             color: var(--gray);
-            margin-bottom: 1rem;
+            margin-bottom: 0.8rem;
+            width: 100%;
         }
 
         .step-description {
-            font-size: 0.95rem;
-            margin-bottom: 1.5rem;
+            font-size: clamp(0.85rem, 3vw, 0.95rem);
+            margin-bottom: 1rem;
             color: var(--dark);
+            word-break: break-word;
         }
 
         .transitions {
-            margin-top: 1.5rem;
+            margin-top: 1.2rem;
         }
 
         .transition {
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            font-size: 0.9rem;
+            padding: 0.8rem;
+            border-radius: 6px;
+            margin-bottom: 0.8rem;
+            font-size: clamp(0.8rem, 3vw, 0.9rem);
             position: relative;
             transition: var(--transition);
         }
@@ -159,23 +191,26 @@
 
         .transition-title {
             font-weight: 600;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.4rem;
             display: flex;
             align-items: center;
+            flex-wrap: wrap;
         }
 
         .transition-title i {
-            margin-right: 0.5rem;
+            margin-right: 0.4rem;
+            flex-shrink: 0;
         }
 
         .transition-condition {
-            font-size: 0.85rem;
+            font-size: clamp(0.75rem, 3vw, 0.85rem);
             color: var(--gray);
+            word-break: break-word;
         }
 
         .connector {
             width: 2px;
-            height: 2rem;
+            height: 1.5rem;
             background-color: var(--accent);
             position: relative;
             margin: 0 auto;
@@ -196,7 +231,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 2rem;
+            gap: 1.5rem;
             position: relative;
             width: 100%;
         }
@@ -204,29 +239,31 @@
         .edit-controls {
             display: flex;
             justify-content: center;
-            gap: 1rem;
-            margin-bottom: 2rem;
+            gap: 0.8rem;
+            margin-bottom: 1.5rem;
             flex-wrap: wrap;
         }
 
         .step-actions {
             display: flex;
-            gap: 0.5rem;
-            margin-top: 1rem;
+            gap: 0.4rem;
+            margin-top: 0.8rem;
             justify-content: flex-end;
+            flex-wrap: wrap;
         }
 
         .btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            padding: 0.75rem 1.5rem;
+            padding: 0.6rem 1.2rem;
             border-radius: var(--border-radius);
             border: none;
             font-weight: 600;
             cursor: pointer;
             transition: var(--transition);
-            font-size: 1rem;
+            font-size: clamp(0.9rem, 3vw, 1rem);
+            white-space: nowrap;
         }
 
         .btn-primary {
@@ -267,8 +304,8 @@
         }
 
         .btn-sm {
-            padding: 0.5rem 1rem;
-            font-size: 0.9rem;
+            padding: 0.4rem 0.8rem;
+            font-size: clamp(0.8rem, 3vw, 0.9rem);
         }
 
         .modal {
@@ -282,14 +319,17 @@
             z-index: 1000;
             justify-content: center;
             align-items: center;
+            padding: 1rem;
         }
 
         .modal-content {
             background-color: var(--white);
-            padding: 2rem;
+            padding: 1.5rem;
             border-radius: var(--border-radius);
             width: 100%;
             max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
             box-shadow: var(--card-shadow);
         }
 
@@ -297,11 +337,11 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.2rem;
         }
 
         .modal-title {
-            font-size: 1.5rem;
+            font-size: clamp(1.2rem, 4vw, 1.5rem);
             color: var(--primary);
         }
 
@@ -314,21 +354,22 @@
         }
 
         .form-group {
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.2rem;
         }
 
         .form-group label {
             display: block;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.4rem;
             font-weight: 600;
+            font-size: clamp(0.9rem, 3vw, 1rem);
         }
 
         .form-control {
             width: 100%;
-            padding: 0.75rem 1rem;
+            padding: 0.6rem 0.8rem;
             border: 1px solid var(--gray-light);
             border-radius: var(--border-radius);
-            font-size: 1rem;
+            font-size: clamp(0.9rem, 3vw, 1rem);
             transition: var(--transition);
         }
 
@@ -338,11 +379,15 @@
             box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
         }
 
+        textarea.form-control {
+            min-height: 100px;
+        }
+
         .form-actions {
             display: flex;
             justify-content: flex-end;
-            gap: 1rem;
-            margin-top: 1.5rem;
+            gap: 0.8rem;
+            margin-top: 1.2rem;
         }
 
         .password-modal {
@@ -356,11 +401,12 @@
             z-index: 1000;
             justify-content: center;
             align-items: center;
+            padding: 1rem;
         }
 
         .password-content {
             background-color: var(--white);
-            padding: 2rem;
+            padding: 1.5rem;
             border-radius: var(--border-radius);
             width: 100%;
             max-width: 400px;
@@ -371,7 +417,8 @@
             position: fixed;
             bottom: 20px;
             right: 20px;
-            padding: 12px 24px;
+            left: 20px;
+            padding: 10px 20px;
             background-color: var(--success);
             color: white;
             border-radius: var(--border-radius);
@@ -383,6 +430,8 @@
             transform: translateY(100px);
             opacity: 0;
             transition: all 0.3s ease;
+            max-width: 500px;
+            margin: 0 auto;
         }
 
         .toast.show {
@@ -396,27 +445,81 @@
 
         .toast i {
             font-size: 1.2rem;
+            flex-shrink: 0;
         }
 
         @media (min-width: 768px) {
             .parallel-steps {
                 flex-direction: row;
                 justify-content: center;
+                align-items: flex-start;
             }
             
             .step {
-                margin-bottom: 3rem;
+                margin-bottom: 2rem;
+            }
+
+            .header {
+                margin-bottom: 1.5rem;
+                padding-bottom: 1.25rem;
+            }
+
+            .logo {
+                height: 50px;
+                margin-bottom: 0.75rem;
+            }
+
+            .toast {
+                left: auto;
+                max-width: none;
             }
         }
 
         @media (max-width: 576px) {
             .edit-controls {
                 flex-direction: column;
-                align-items: center;
+                align-items: stretch;
+                gap: 0.5rem;
             }
             
             .btn {
                 width: 100%;
+                padding: 0.75rem;
+            }
+
+            .modal-content {
+                padding: 1rem;
+            }
+
+            .form-actions {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .form-actions .btn {
+                width: 100%;
+            }
+        }
+
+        /* Ajustes para telas muito pequenas */
+        @media (max-width: 400px) {
+            .step-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .step-icon {
+                margin-bottom: 0.5rem;
+                margin-right: 0;
+            }
+
+            .step-actions {
+                justify-content: center;
+            }
+
+            .step-actions .btn {
+                flex: 1;
+                min-width: 100px;
             }
         }
     </style>
